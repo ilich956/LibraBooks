@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
+	"main.go/books"
 	"main.go/users"
 )
 
@@ -31,6 +35,8 @@ type ResponseData struct {
 }
 
 var db *sql.DB
+var limiter = rate.NewLimiter(1, 3)
+var log = logrus.New()
 
 func main() {
 	var err error
@@ -47,9 +53,20 @@ func main() {
 		return
 	}
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
-	http.HandleFunc("/", userHandler)
-	fmt.Println("Server listening on port", port)
+	http.HandleFunc("/", rateLimitedHandler(userHandler))
+	log.Info("Server listening on port", port)
 	http.ListenAndServe(port, nil)
+}
+
+func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			log.Warn("Rate limit exceeded")
+			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,31 +80,56 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	case "/login":
 		loginUser(w, r)
 	case "/userList":
-		showUserList(w, r)
+		getUserList(w, r)
+	case "/library":
+		getLibrary(w, r)
 	}
 	// http.Error(w, "Method not all", http.StatusMethodNotAllowed)
 }
 
-func showUserList(w http.ResponseWriter, r *http.Request) {
+// BIBLIOTEKAAAAAAAAAAAAA
+func getLibrary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := books.DefaultBookService.ShowBooks(w, r, db)
+	if err != nil {
+		http.Error(w, "Error showing user list", http.StatusInternalServerError)
+	}
+}
+
+////////////////////////////////////////////////////////////////////////
+
+func getUserList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		log.Warn("Invalid HTTP method for getUserList")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	err := users.DefaultUserService.ShowUserList(w, r, db)
 	if err != nil {
+		log.WithError(err).Error("Error showing user list")
 		http.Error(w, "Error showing user list", http.StatusInternalServerError)
 	}
 }
 
 func registerUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
+		log.Warn("Invalid HTTP method for registerUser")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	newUser := getUser(r)
 	users.DefaultUserService.CreateUser(db, newUser)
+
+	log.WithFields(logrus.Fields{
+		"action": "register",
+		"user":   newUser,
+	}).Info("User registered successfully")
 }
 
 func loginUser(w http.ResponseWriter, r *http.Request) {
@@ -118,6 +160,23 @@ func getLoginPage(w http.ResponseWriter, r *http.Request) {
 func templating(w http.ResponseWriter, filename string, data interface{}) {
 	t, _ := template.ParseFiles(filename)
 	t.ExecuteTemplate(w, filename, data)
+}
+
+func init() {
+	// Create or open the log file
+	file, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		// Set the logrus output to the file
+		log.SetOutput(file)
+	} else {
+		// If unable to open the log file, log to standard output
+		log.Warn("Failed to open log file. Logging to standard output.")
+	}
+
+	log.SetFormatter(&logrus.JSONFormatter{})
+	log.SetLevel(logrus.InfoLevel)
+
+	log.Info("Logging initialized")
 }
 
 ///////////////////////////////////////////////

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraBook</title>
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Book List</h1>
+
+    <thead>
+        <tr>
+            <th><a href="?sort=id&filter={{.Filter}}">ID</a></th>
+            <th><a href="?sort=book_name&filter={{.Filter}}">Book Name</a></th>
+            <th><a href="?sort=book_author&filter={{.Filter}}">Book Author</a></th>
+            <th><a href="?sort=book_genre&filter={{.Filter}}">Book Genre</a></th>
+            <th><a href="?sort=book_date&filter={{.Filter}}">Book Date</a></th>
+        </tr>
+    </thead>
+
+    <form action="/library" method="get">
+        <label for="filter">Filter:</label>
+        <input type="text" id="filter" name="filter" value="{{.Filter}}">
+        <button type="submit">Apply Filter</button>
+    </form>
+
+
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Book Name</th>
+                <th>Book Author</th>
+                <th>Book Genre</th>
+                <th>Book Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Books}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.BookName}}</td>
+                <td>{{.BookAuthor}}</td>
+                <td>{{.BookGenre}}</td>
+                <td>{{.BookDate}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {{if .PrevPage}}
+        <button onclick="goToPage({{.PrevPage}})">Previous</button>
+        {{end}}
+
+        {{range .Pages}}
+        <button onclick="goToPage({{.}})">{{.}}</button>
+        {{end}}
+
+        {{if .NextPage}}
+        <button onclick="goToPage({{.NextPage}})">Next</button>
+        {{end}}
+    </div>
+
+    <script>
+        function goToPage(page) {
+            window.location.href = '?page=' + page + '&filter={{.Filter}}';
+        }
+    </script>
+</body>
+
+</html>
