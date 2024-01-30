@@ -6,53 +6,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibraBook</title>
-    <style>
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .pagination button {
-            margin: 0 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
-<body>
-    <h1>Book List</h1>
+<body class="container mt-5">
 
-    <thead>
-        <tr>
-            <th><a href="?sort=id&filter={{.Filter}}">ID</a></th>
-            <th><a href="?sort=book_name&filter={{.Filter}}">Book Name</a></th>
-            <th><a href="?sort=book_author&filter={{.Filter}}">Book Author</a></th>
-            <th><a href="?sort=book_genre&filter={{.Filter}}">Book Genre</a></th>
-            <th><a href="?sort=book_date&filter={{.Filter}}">Book Date</a></th>
-        </tr>
-    </thead>
+    <h1 class="text-center">Book List</h1>
 
-    <form action="/library" method="get">
-        <label for="filter">Filter:</label>
-        <input type="text" id="filter" name="filter" value="{{.Filter}}">
-        <button type="submit">Apply Filter</button>
-    </form>
-
-
-
-    <table border="1">
+    <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Book Name</th>
-                <th>Book Author</th>
-                <th>Book Genre</th>
-                <th>Book Date</th>
+                <th><a href="?sort=id&filter={{.Filter}}">ID</a></th>
+                <th><a href="?sort=book_name&filter={{.Filter}}">Book Name</a></th>
+                <th><a href="?sort=book_author&filter={{.Filter}}">Book Author</a></th>
+                <th><a href="?sort=book_genre&filter={{.Filter}}">Book Genre</a></th>
+                <th><a href="?sort=book_date&filter={{.Filter}}">Book Date</a></th>
             </tr>
         </thead>
-        <tbody>
+
+        <form action="/library" method="get">
+            <tr>
+                <td></td>
+                <td><input type="text" class="form-control" id="filter" name="filter" value="{{.Filter}}"></td>
+                <td colspan="3"><button type="submit" class="btn btn-primary">Apply Filter</button></td>
+            </tr>
+        </form>
+
+        <!-- <tbody>
             {{range .Books}}
             <tr>
                 <td>{{.ID}}</td>
@@ -62,22 +43,39 @@
                 <td>{{.BookDate}}</td>
             </tr>
             {{end}}
-        </tbody>
+        </tbody> -->
     </table>
 
-    <div class="pagination">
+    <div class="row">
+        {{range .Books}}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{.BookName}}</h5>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="pagination justify-content-center">
         {{if .PrevPage}}
-        <button onclick="goToPage({{.PrevPage}})">Previous</button>
+        <button class="btn btn-secondary" onclick="goToPage({{.PrevPage}})">Previous</button>
         {{end}}
 
         {{range .Pages}}
-        <button onclick="goToPage({{.}})">{{.}}</button>
+        <button class="btn btn-secondary" onclick="goToPage({{.}})">{{.}}</button>
         {{end}}
 
         {{if .NextPage}}
-        <button onclick="goToPage({{.NextPage}})">Next</button>
+        <button class="btn btn-secondary" onclick="goToPage({{.NextPage}})">Next</button>
         {{end}}
     </div>
+
+    <!-- Include Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         function goToPage(page) {

@@ -11,14 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Book represents a book entity.
 type Book struct {
 	ID         int    `json:"id"`
 	BookName   string `json:"book_name"`
 	BookAuthor string `json:"book_author"`
 	BookGenre  string `json:"book_genre"`
 	BookDate   string `json:"book_date"`
-	// Add other fields as needed
 }
 
 var DefaultBookService bookService

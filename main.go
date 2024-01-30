@@ -130,6 +130,8 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 		"action": "register",
 		"user":   newUser,
 	}).Info("User registered successfully")
+
+	http.Redirect(w, r, "/library", http.StatusSeeOther)
 }
 
 func loginUser(w http.ResponseWriter, r *http.Request) {
