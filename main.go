@@ -124,7 +124,13 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUser := getUser(r)
-	users.DefaultUserService.CreateUser(db, newUser)
+	err := users.DefaultUserService.CreateUser(db, newUser)
+	if err != nil {
+		fileName := "register.html"
+		t, _ := template.ParseFiles(fileName)
+		t.ExecuteTemplate(w, fileName, "Create unique username")
+		return
+	}
 
 	log.WithFields(logrus.Fields{
 		"action": "register",

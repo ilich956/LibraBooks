@@ -1,23 +1,2 @@
-{"level":"info","msg":"Logging initialized","time":"2024-01-30T09:41:47+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-01-30T09:41:47+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:44:00+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:44:01+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-01-30T09:44:06+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-01-30T09:44:06+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:44:17+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-01-30T09:45:37+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-01-30T09:45:37+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:45:43+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:45:43+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:45:43+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:45:44+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:49:52+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:49:57+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:50:17+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T09:50:21+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T10:01:16+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T10:02:07+06:00"}
-{"level":"warning","msg":"Rate limit exceeded","time":"2024-01-30T10:02:09+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-01-30T10:09:51+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-01-30T10:09:51+06:00"}
-{"action":"register","level":"info","msg":"User registered successfully","time":"2024-01-30T10:10:13+06:00","user":{"Email":"hello@gmail.com","Username":"helloman","Password":"hello"}}
+{"level":"info","msg":"Logging initialized","time":"2024-01-30T11:44:55+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-01-30T11:44:55+06:00"}
