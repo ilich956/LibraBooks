@@ -12,11 +12,12 @@ import (
 )
 
 type Book struct {
-	ID         int    `json:"id"`
-	BookName   string `json:"book_name"`
-	BookAuthor string `json:"book_author"`
-	BookGenre  string `json:"book_genre"`
-	BookDate   string `json:"book_date"`
+	ID            int    `json:"id"`
+	BookName      string `json:"book_name"`
+	BookAuthor    string `json:"book_author"`
+	BookGenre     string `json:"book_genre"`
+	BookDate      string `json:"book_date"`
+	ImageFilename string `json:"image_filename"`
 }
 
 var DefaultBookService bookService
@@ -57,11 +58,13 @@ func (bookService) ShowBooks(w http.ResponseWriter, r *http.Request, db *sql.DB)
 
 	for rows.Next() {
 		var b Book
+
 		err := rows.Scan(&b.ID, &b.BookName, &b.BookAuthor, &b.BookGenre, &b.BookDate)
 		if err != nil {
 			logrus.WithError(err).Error("Error scanning row for books")
 			return err
 		}
+		b.ImageFilename = fmt.Sprintf("img%d.jpg", b.ID)
 		books = append(books, b)
 	}
 

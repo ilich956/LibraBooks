@@ -52,6 +52,7 @@ func main() {
 		fmt.Println("Error creating user_table:", err)
 		return
 	}
+	http.Handle("/book-covers/", http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
 	http.HandleFunc("/", rateLimitedHandler(userHandler))
 	log.Info("Server listening on port", port)

@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
-<body class="container mt-5">   
+<body class="container mt-5">
 
     <h1 class="text-center">LibraBook</h1>
 
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th><a href="?sort=id&filter={{.Filter}}">ID</a></th>
+                <!-- <th><a href="?sort=id&filter={{.Filter}}">ID</a></th> -->
                 <th><a href="?sort=book_name&filter={{.Filter}}">Book Name</a></th>
                 <th><a href="?sort=book_author&filter={{.Filter}}">Book Author</a></th>
                 <th><a href="?sort=book_genre&filter={{.Filter}}">Book Genre</a></th>
@@ -49,8 +49,13 @@
         {{range .Books}}
         <div class="col-md-4 mb-4">
             <div class="card">
+                <img src="book-covers/{{.ImageFilename}}" class="card-img-top" alt="{{.BookName}}">
                 <div class="card-body">
                     <h5 class="card-title">{{.BookName}}</h5>
+                    <h6 class="card-title">
+                        <p class="text-muted">{{.BookGenre}}</p>
+                    </h6>
+
                 </div>
             </div>
         </div>
