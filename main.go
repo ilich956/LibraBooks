@@ -24,7 +24,8 @@ const (
 			id SERIAL PRIMARY KEY,
 			email VARCHAR(255),
 			username VARCHAR(255),
-			password VARCHAR(255)
+			password VARCHAR(255),
+			isActivated BOOLEAN DEFAULT FALSE
 		);
 	`
 )
@@ -56,6 +57,7 @@ func main() {
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
 	http.HandleFunc("/", rateLimitedHandler(userHandler))
 	log.Info("Server listening on port", port)
+	fmt.Println("Server listening on port", port)
 	http.ListenAndServe(port, nil)
 }
 
@@ -72,7 +74,7 @@ func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "/register_form":
+	case "/":
 		getRegisterPage(w, r) //handleRegistration(w, r)
 	case "/login_form":
 		getLoginPage(w, r) //handleLogin(w, r)
