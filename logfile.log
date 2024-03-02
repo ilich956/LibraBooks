@@ -1,36 +1,31 @@
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:17:38+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:17:38+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T21:17:42+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T21:17:46+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:18:05+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:18:05+06:00"}
-{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T21:18:23+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"ilyas","Password":"a"}}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:21:40+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:21:40+06:00"}
-{"level":"warning","msg":"Invalid HTTP method for loginUser","time":"2024-03-02T21:22:13+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:29:28+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:29:28+06:00"}
-{"level":"warning","msg":"Invalid HTTP method for loginUser","time":"2024-03-02T21:29:51+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:36:12+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:36:12+06:00"}
-{"level":"warning","msg":"Invalid HTTP method for loginUser","time":"2024-03-02T21:53:41+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:54:34+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:54:34+06:00"}
-{"level":"warning","msg":"Invalid HTTP method for loginUser","time":"2024-03-02T21:54:51+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:55:02+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:55:02+06:00"}
-{"level":"warning","msg":"Invalid HTTP method for loginUser","time":"2024-03-02T21:55:15+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T21:56:31+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T21:56:31+06:00"}
-{"level":"info","msg":"Logging initialized","time":"2024-03-02T22:05:00+06:00"}
-{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T22:05:00+06:00"}
-{"error":"user not found","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:05:56+06:00"}
-{"error":"user not found","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:06:04+06:00"}
-{"error":"user not found","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:06:09+06:00"}
-{"error":"user not found","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:06:56+06:00"}
-{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T22:08:23+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"ilyas","Password":"qwerty"}}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:10:56+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:11:02+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:11:16+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:11:28+06:00"}
-{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T22:11:33+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T23:28:47+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T23:28:47+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T23:31:29+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T23:31:29+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T23:41:36+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T23:41:36+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T23:44:04+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"ilyas","Password":"qwerty"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T23:47:38+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T23:47:38+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:09:02+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:09:02+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:11:01+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:11:01+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:14:02+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:14:02+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:46:29+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:46:29+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:49:54+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:49:54+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:51:53+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:51:53+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:53:21+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:53:21+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:54:14+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:54:14+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T00:55:23+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T00:55:23+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T01:00:13+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T01:00:13+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-03T01:01:18+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-03T01:01:18+06:00"}

@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 	"main.go/books"
+	"main.go/token"
 	"main.go/users"
 )
 
@@ -56,6 +57,8 @@ func main() {
 	}
 	router := mux.NewRouter()
 
+	// router.Use(middleware.AttachTokenToRequest)
+
 	router.HandleFunc("/", getRegisterPage)
 	router.HandleFunc("/login_form", rateLimitedHandler(getLoginPage))
 	router.HandleFunc("/checkmail", rateLimitedHandler(getCheckMailPage))
@@ -69,6 +72,7 @@ func main() {
 	router.HandleFunc("/change", rateLimitedHandler(changePassword))
 	router.HandleFunc("/sendotp", rateLimitedHandler(handleOTP))
 	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
+	router.HandleFunc("/borrow", rateLimitedHandler(handleBorrowBook))
 
 	// Serving static files
 	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
@@ -128,7 +132,16 @@ func getOTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func getProfile(w http.ResponseWriter, r *http.Request) {
-	templating(w, "profile.html", nil)
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return // Return after calling http.Error
+	}
+
+	err := books.DefaultBookService.ShowBorrowedBooks(w, r, db)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return // Return after calling http.Error
+	}
 }
 
 func getPsswd(w http.ResponseWriter, r *http.Request) {
@@ -143,6 +156,18 @@ func getLibrary(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := books.DefaultBookService.ShowBooks(w, r, db)
+	if err != nil {
+		http.Error(w, "Error showing library", http.StatusInternalServerError)
+	}
+}
+
+func handleBorrowBook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := books.DefaultBookService.BorrowBook(w, r, db)
 	if err != nil {
 		http.Error(w, "Error showing library", http.StatusInternalServerError)
 	}
@@ -239,7 +264,20 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newUser := getUser(r)
-	err := users.DefaultUserService.CreateUser(db, newUser)
+
+	token, err := token.GenerateToken()
+	if err != nil {
+		log.WithError(err).Error("Error generating token")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: token,
+	})
+
+	err = users.DefaultUserService.CreateUser(db, newUser, token)
 	if err != nil {
 		fileName := "register.html"
 		t, _ := template.ParseFiles(fileName)
@@ -271,8 +309,20 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := token.GenerateToken()
+	if err != nil {
+		log.WithError(err).Error("Error generating token")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: token,
+	})
+
 	// Authenticate user with provided credentials
-	err := users.DefaultUserService.AuthenticateUser(db, username, password)
+	err = users.DefaultUserService.AuthenticateUser(db, username, password)
 	if err != nil {
 		log.WithError(err).Warn("Authentication failed")
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)

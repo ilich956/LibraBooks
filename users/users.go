@@ -34,6 +34,7 @@ type authUser struct {
 	Username     string
 	PasswordHash string
 	Confirmation string
+	Token        string
 }
 
 var DefaultUserService userService
@@ -60,9 +61,8 @@ func getPasswordHash(password string) (string, error) {
 	return string(hash), err
 }
 
-func (userService) CreateUser(db *sql.DB, newUser User) error {
+func (userService) CreateUser(db *sql.DB, newUser User, token string) error {
 	err := checkUsername(db, newUser.Email)
-
 	if err != nil {
 		log.Warn("User already exists")
 		return errors.New("user already exists")
@@ -82,6 +82,7 @@ func (userService) CreateUser(db *sql.DB, newUser User) error {
 		Username:     newUser.Username,
 		PasswordHash: passwordHash,
 		Confirmation: confiramtionString.String(),
+		Token:        token,
 	}
 
 	err = insertUserDB(db, newAuthUser)
@@ -291,8 +292,8 @@ func checkUsername(db *sql.DB, email string) error {
 }
 
 func insertUserDB(db *sql.DB, data authUser) error {
-	_, err := db.Exec("INSERT INTO "+tableName+" (email, username, password, confirmation) VALUES ($1, $2, $3, $4)",
-		data.Email, data.Username, data.PasswordHash, data.Confirmation)
+	_, err := db.Exec("INSERT INTO "+tableName+" (email, username, password, confirmation, token) VALUES ($1, $2, $3, $4, $5)",
+		data.Email, data.Username, data.PasswordHash, data.Confirmation, data.Token)
 	if err != nil {
 		log.WithError(err).Error("Error inserting user into database")
 		return fmt.Errorf("error inserting user into database: %s", err)

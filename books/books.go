@@ -3,6 +3,7 @@ package books
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -19,6 +20,13 @@ type Book struct {
 	BookDate   string `json:"book_date"`
 	// User_id       int    `json:"user_id"`
 	ImageFilename string `json:"image_filename"`
+	Borrowed      string `json:"borrowed`
+}
+
+type BorrowedBook struct {
+	BookName   string `json:"book_name"`
+	BookAuthor string `json:"book_author"`
+	BookGenre  string `json:"book_genre"`
 }
 
 var DefaultBookService bookService
@@ -39,9 +47,9 @@ func (bookService) ShowBooks(w http.ResponseWriter, r *http.Request, db *sql.DB)
 
 	offset := (page - 1) * limit
 
-	query := "SELECT * FROM books"
+	query := "SELECT * FROM books WHERE borrowed = false"
 	if filter != "" {
-		query += " WHERE book_name LIKE '%" + filter + "%' OR book_author LIKE '%" + filter + "%' OR book_genre LIKE '%" + filter + "%'"
+		query += " AND (book_name LIKE '%" + filter + "%' OR book_author LIKE '%" + filter + "%' OR book_genre LIKE '%" + filter + "%')"
 	}
 	if sort != "" {
 		query += " ORDER BY " + sort
@@ -60,7 +68,7 @@ func (bookService) ShowBooks(w http.ResponseWriter, r *http.Request, db *sql.DB)
 	for rows.Next() {
 		var b Book
 
-		err := rows.Scan(&b.ID, &b.BookName, &b.BookAuthor, &b.BookGenre, &b.BookDate)
+		err := rows.Scan(&b.ID, &b.BookName, &b.BookAuthor, &b.BookGenre, &b.BookDate, &b.Borrowed)
 		if err != nil {
 			logrus.WithError(err).Error("Error scanning row for books")
 			return err
@@ -135,6 +143,91 @@ func renderBooksHTML(w http.ResponseWriter, books []Book, currentPage, totalPage
 	}
 
 	err = tmpl.Execute(w, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (bookService) BorrowBook(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
+	// Parse form data to get the book ID
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	bookID := r.Form.Get("book_id")
+	if bookID == "" {
+		return errors.New("book ID is required")
+	}
+
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return errors.New("token not found in cookies")
+	}
+
+	token := cookie.Value
+
+	// Convert book ID to integer
+	id, err := strconv.Atoi(bookID)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("INSERT INTO borrowings (book_id, user_id, borrowed_at) VALUES ($1, (SELECT id FROM user_table WHERE token = $2), CURRENT_TIMESTAMP)", id, token)
+	if err != nil {
+		return err
+	}
+
+	// Update the database to mark the book as borrowed
+	_, err = db.Exec("UPDATE books SET borrowed = true WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+
+	// Respond with a success message or any necessary response
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Book with ID %d has been borrowed successfully", id)
+
+	return nil
+}
+
+func (bookService) ShowBorrowedBooks(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
+	// Retrieve user ID from token in request cookies
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return errors.New("token not found in cookies")
+	}
+	token := cookie.Value
+
+	// Query the database to get borrowed books for the user
+	rows, err := db.Query("SELECT book_name, book_author, book_genre FROM books INNER JOIN borrowings ON books.id = borrowings.book_id WHERE borrowings.user_id = (SELECT id FROM user_table WHERE token = $1)", token)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	// Create a slice to hold BorrowedBook objects
+	var borrowedBooks []BorrowedBook
+
+	// Iterate over the rows and populate the borrowedBooks slice
+	for rows.Next() {
+		var b BorrowedBook
+		err := rows.Scan(&b.BookName, &b.BookAuthor, &b.BookGenre)
+		if err != nil {
+			return err
+		}
+		borrowedBooks = append(borrowedBooks, b)
+	}
+
+	// Render the borrowed books HTML template
+	tmpl, err := template.ParseFiles("profile.html")
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.Execute(w, borrowedBooks)
 	if err != nil {
 		return err
 	}

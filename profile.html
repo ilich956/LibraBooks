@@ -53,7 +53,7 @@
 
         .mb-3,
         .my-3 {
-            margin-bottom: 1rem!important;
+            margin-bottom: 1rem !important;
         }
 
         .bg-gray-300 {
@@ -61,11 +61,11 @@
         }
 
         .h-100 {
-            height: 100%!important;
+            height: 100% !important;
         }
 
         .shadow-none {
-            box-shadow: none!important;
+            box-shadow: none !important;
         }
 
         .profile-pic-modal {
@@ -138,84 +138,87 @@
                     </nav>
                 </div>
             </header>
-                          <!-- Profile Picture -->
-                          <div class="card">
-                              <div class="card-body">
-                                  <div class="d-flex flex-column align-items-center text-center">
-                                      <img src="n.jpg" alt="Admin" class="circle" width="150" id="profile-picture">
-                                      <div class="mt-3">
-                                          <h4>{{.username}}</h4>
-                                          <button class="btn btn-outline-primary" onclick="openProfilePicModal()">Edit</button>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-              
-                          <!-- Additional User Details Block -->
-                          <div class="user-details-block mt-3">
-                              <div class="card">
-                                  <div class="card-body">
-                                      <h5 class="card-title">User Details</h5>
-                                      <p class="card-text">{{.email}}</p>
-                                      <p class="card-text">{{.username}}</p>
-                                  </div>
-                              </div>
-              
-                              <!-- Buttons for User Details -->
-                              <div class="mt-3">
-                                  <button type="button" class="btn btn-outline-primary" onclick="redirectToPsswd()">Change Password</button>
-                              </div>
-                          </div>
-                      </div>
-              
-                      <!-- Content on the right side of the profile picture -->
-                      <div class="container">
-                        <div class="row">
-                            <div class="col-md-8 order-md-2">
-                                <!-- Content on the right side of the profile picture -->
+            <!-- Profile Picture -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center text-center">
+                        <img src="n.jpg" alt="Admin" class="circle" width="150" id="profile-picture">
+                        <div class="mt-3">
+                            <h4>{{.username}}</h4>
+                            <button class="btn btn-outline-primary" onclick="openProfilePicModal()">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional User Details Block -->
+            <div class="user-details-block mt-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">User Details</h5>
+                        <p class="card-text">{{.email}}</p>
+                        <p class="card-text">{{.username}}</p>
+                    </div>
+                </div>
+
+                <!-- Buttons for User Details -->
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-primary" onclick="redirectToPsswd()">Change
+                        Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content on the right side of the profile picture -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 order-md-2">
+                    <!-- Content on the right side of the profile picture -->
+
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Borowed books</h5>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Book name</th>
+                                        <th>Book genre</th>
+                                        <th>Book author</th>
+                                        <th>    
                                 
-                    
-                                <div class="card mt-3"> 
-                                    <div class="card-body">
-                                        <h5 class="card-title">Books</h5>
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Order ID</th>
-                                                    <th>Product Name</th>
-                                                    <th>Quantity</th>
-                                                    <th>Total Price</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>Product A</td>
-                                                    <td>2</td>
-                                                    <td>$50.00</td>
-                                                </tr>
-                                                <!-- Add more rows as needed -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                    
-                            <div class="col-md-4 order-md-1">
-                                <!-- Profile picture and related content -->
-                                <!-- <div class="card">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .}}
+                                    <tr>
+                                        <td>{{.BookName}}</td>
+                                        <td>{{.BookAuthor}}</td>
+                                        <td>{{.BookGenre}}</td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-4 order-md-1">
+                    <!-- Profile picture and related content -->
+                    <!-- <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title">About me</h5>
                                         Welcome to WeBooks, where the magic of words comes to life! Founded by a trio of passionate individuals — Sanzhar, Nurzhan, and Bakhtiyar — WeBooks is dedicated to fostering a love for literature and providing a seamless experience in the digital realm.
                                     </div>
                                 </div> -->
-                            </div>
-                        </div>
-                    </div>             
                 </div>
             </div>
         </div>
+    </div>
+    </div>
+    </div>
     </div>
 
     <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel"
@@ -254,9 +257,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
     <script src="js/profile.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
     <script src="js/notification.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 
     <script>
         function redirectToPsswd() {
