@@ -67,8 +67,8 @@ func main() {
 	router.HandleFunc("/profile", rateLimitedHandler(getProfile))
 	router.HandleFunc("/changepsswd", rateLimitedHandler(getPsswd))
 	router.HandleFunc("/change", rateLimitedHandler(changePassword))
-	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
 	router.HandleFunc("/sendotp", rateLimitedHandler(handleOTP))
+	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
 
 	// Serving static files
 	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
@@ -150,7 +150,7 @@ func getLibrary(w http.ResponseWriter, r *http.Request) {
 
 func handleOTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		log.Warn("Invalid HTTP method for loginUser")
+		log.Warn("Invalid HTTP method for handleOTP")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -168,11 +168,11 @@ func handleOTP(w http.ResponseWriter, r *http.Request) {
 	err := users.DefaultUserService.OTPservice(db, email)
 	if err != nil {
 		log.WithError(err).Warn("Authentication failed")
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		http.Error(w, "error otp", http.StatusUnauthorized)
 		return
 	}
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/login_form", http.StatusSeeOther)
 }
 
 func activate(w http.ResponseWriter, r *http.Request) {
@@ -243,7 +243,7 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fileName := "register.html"
 		t, _ := template.ParseFiles(fileName)
-		t.ExecuteTemplate(w, fileName, "Create unique username")
+		t.ExecuteTemplate(w, fileName, "Email is already registered")
 		return
 	}
 
@@ -266,7 +266,6 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	// Validate if username and password are provided
 	if username == "" || password == "" {
 		http.Error(w, "Username and password are required", http.StatusBadRequest)
 		return
@@ -325,109 +324,3 @@ func init() {
 
 	log.Info("Logging initialized")
 }
-
-///////////////////////////////////////////////
-
-// func handleGetUser(w http.ResponseWriter, r *http.Request) {
-// 	users, err := getFromDB()
-// 	if err != nil {
-// 		http.Error(w, "Status", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	ts, err := template.ParseFiles("userList.html")
-// 	if err != nil {
-// 		http.Error(w, "Loh", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	ts.Execute(w, users)
-
-// }
-
-// func getFromDB() ([]RegistrationData, error) {
-// 	rows, err := db.Query(`SELECT "username","password" FROM user_table`)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("Error querying database: %s", err)
-// 	}
-// 	defer rows.Close()
-
-// 	var users []RegistrationData
-
-// 	for rows.Next() {
-// 		var u RegistrationData
-// 		err := rows.Scan(&u.Username, &u.Password)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("Error scanning row: %s", err)
-// 		}
-// 		users = append(users, u)
-// 	}
-// 	fmt.Print(users)
-// 	return users, nil
-// }
-
-// func handleRegistration(w http.ResponseWriter, r *http.Request) {
-// 	body, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		handleError(w, "Invalid JSON format")
-// 		return
-// 	}
-
-// 	var registrationData RegistrationData
-// 	err = json.Unmarshal(body, &registrationData)
-// 	if err != nil {
-// 		handleError(w, "Invalid JSON format")
-// 		return
-// 	}
-
-// 	if registrationData.Password != registrationData.ConfirmPassword {
-// 		handleError(w, "Password and confirm password do not match")
-// 		return
-// 	}
-
-// 	// Insert user registration data into the database
-// 	err = insertUser(registrationData)
-// 	if err != nil {
-// 		handleError(w, "Error inserting user data into the database")
-// 		return
-// 	}
-
-// 	fmt.Printf("Received registration data: %+v\n", registrationData)
-
-// 	response := ResponseData{
-// 		Status:  "success",
-// 		Message: "Registration data successfully received and inserted into the database",
-// 	}
-
-// 	responseJSON, err := json.Marshal(response)
-// 	if err != nil {
-// 		handleError(w, "Error")
-// 		return
-// 	}
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.Write(responseJSON)
-// }
-
-// func insertUser(data RegistrationData) error {
-// 	_, err := db.Exec("INSERT INTO "+tableName+" (name, email, username, password) VALUES ($1, $2, $3, $4)",
-// 		data.Name, data.Email, data.Username, data.Password)
-// 	return err
-
-// 	//Remove name
-// }
-
-// func handleError(w http.ResponseWriter, message string) {
-// 	response := ResponseData{
-// 		Status:  "400",
-// 		Message: message,
-// 	}
-
-// 	responseJSON, err := json.Marshal(response)
-// 	if err != nil {
-// 		http.Error(w, "Error", http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.WriteHeader(http.StatusBadRequest)
-// 	w.Write(responseJSON)
-// }

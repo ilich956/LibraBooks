@@ -61,7 +61,7 @@ func getPasswordHash(password string) (string, error) {
 }
 
 func (userService) CreateUser(db *sql.DB, newUser User) error {
-	err := checkUsername(db, newUser.Username)
+	err := checkUsername(db, newUser.Email)
 
 	if err != nil {
 		log.Warn("User already exists")
@@ -144,10 +144,10 @@ func (userService) Activate(db *sql.DB, link string) error {
 
 func (userService) AuthenticateUser(db *sql.DB, username string, password string) error {
 	var storedPasswordHash string
-	err := db.QueryRow("SELECT password FROM "+tableName+" WHERE username = $1", username).Scan(&storedPasswordHash)
+	var storedOTP *string
+	err := db.QueryRow("SELECT password, otp FROM "+tableName+" WHERE username = $1", username).Scan(&storedPasswordHash, &storedOTP) //
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Username not found
 			log.WithError(err).Warn("User not found")
 			return errors.New("user not found")
 		}
@@ -155,11 +155,27 @@ func (userService) AuthenticateUser(db *sql.DB, username string, password string
 		return fmt.Errorf("error retrieving user password hash: %s", err)
 	}
 
-	// Compare the stored password hash with the provided password
+	if storedOTP != nil && password == *storedOTP {
+		// Clear OTP from database
+		_, err := db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE username = $1", username)
+		if err != nil {
+			log.WithError(err).Error("Error clearing OTP in database")
+			return fmt.Errorf("error clearing OTP in database: %s", err)
+		}
+		return nil // Successfully authenticated with OTP
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(storedPasswordHash), []byte(password))
 	if err != nil {
-		// Passwords don't match
 		return errors.New("incorrect password")
+	}
+
+	if storedOTP != nil {
+		_, err = db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE username = $1", username)
+		if err != nil {
+			log.WithError(err).Error("Error clearing OTP in database")
+			return fmt.Errorf("error clearing OTP in database: %s", err)
+		}
 	}
 
 	return nil
@@ -258,12 +274,12 @@ func getUserListDB(db *sql.DB) ([]authUser, error) {
 	return users, nil
 }
 
-func checkUsername(db *sql.DB, username string) error {
+func checkUsername(db *sql.DB, email string) error {
 	var count int
-	err := db.QueryRow("SELECT COUNT(*) FROM " + tableName + " WHERE username = '" + username + "'").Scan(&count)
+	err := db.QueryRow("SELECT COUNT(*) FROM " + tableName + " WHERE email = '" + email + "'").Scan(&count)
 	if err != nil {
-		log.WithError(err).Error("Error checking username uniqueness")
-		return fmt.Errorf("error checking username uniqueness: %s", err)
+		log.WithError(err).Error("Error checking email uniqueness")
+		return fmt.Errorf("error checking email uniqueness: %s", err)
 	}
 
 	if count > 0 {
