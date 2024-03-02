@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
@@ -53,12 +54,31 @@ func main() {
 		fmt.Println("Error creating user_table:", err)
 		return
 	}
-	http.Handle("/book-covers/", http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
-	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
-	http.HandleFunc("/", rateLimitedHandler(userHandler))
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", getRegisterPage)
+	router.HandleFunc("/login_form", rateLimitedHandler(getLoginPage))
+	router.HandleFunc("/checkmail", rateLimitedHandler(getCheckMailPage))
+	router.HandleFunc("/activate/{link}", activate)
+	router.HandleFunc("/register", rateLimitedHandler(registerUser))
+	router.HandleFunc("/login", rateLimitedHandler(loginUser))
+	router.HandleFunc("/userList", rateLimitedHandler(getUserList))
+	router.HandleFunc("/library", rateLimitedHandler(getLibrary))
+
+	// Serving static files
+	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
+	router.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
+
 	log.Info("Server listening on port", port)
 	fmt.Println("Server listening on port", port)
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(port, router)
+	// http.Handle("/book-covers/", http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
+	// http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
+	// http.HandleFunc("/", rateLimitedHandler(userHandler))
+
+	// log.Info("Server listening on port", port)
+	// fmt.Println("Server listening on port", port)
+	// http.ListenAndServe(port, nil)
 }
 
 func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
@@ -72,22 +92,30 @@ func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		getRegisterPage(w, r) //handleRegistration(w, r)
-	case "/login_form":
-		getLoginPage(w, r) //handleLogin(w, r)
-	case "/register":
-		registerUser(w, r)
-	case "/login":
-		loginUser(w, r)
-	case "/userList":
-		getUserList(w, r)
-	case "/library":
-		getLibrary(w, r)
-	}
-	// http.Error(w, "Method not all", http.StatusMethodNotAllowed)
+// func userHandler(w http.ResponseWriter, r *http.Request) {
+// 	switch r.URL.Path {
+// 	case "/":
+// 		getRegisterPage(w, r) //handleRegistration(w, r)
+// 	case "/login_form":
+// 		getLoginPage(w, r) //handleLogin(w, r)
+// 	case "/checkmail":
+// 		getCheckMailPage(w, r)
+// 	case "/activate/{link}":
+// 		activate(w, r)
+// 	case "/register":
+// 		registerUser(w, r)
+// 	case "/login":
+// 		loginUser(w, r)
+// 	case "/userList":
+// 		getUserList(w, r)
+// 	case "/library":
+// 		getLibrary(w, r)
+// 	}
+// 	// http.Error(w, "Method not all", http.StatusMethodNotAllowed)
+// }
+
+func getCheckMailPage(w http.ResponseWriter, r *http.Request) {
+	templating(w, "checkemail.html", nil)
 }
 
 // BIBLIOTEKAAAAAAAAAAAAA
@@ -101,6 +129,22 @@ func getLibrary(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Error showing user list", http.StatusInternalServerError)
 	}
+}
+
+func activate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	link := mux.Vars(r)["link"] // Get the variables from the request URL
+	// Extract the value of ":link" parameter
+	fmt.Println(link)
+	err := users.DefaultUserService.Activate(db, link)
+	if err != nil {
+		http.Error(w, "Error activating account", http.StatusInternalServerError)
+	}
+
+	http.Redirect(w, r, "/login_form", http.StatusSeeOther)
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -140,11 +184,36 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 		"user":   newUser,
 	}).Info("User registered successfully")
 
-	http.Redirect(w, r, "/library", http.StatusSeeOther)
+	http.Redirect(w, r, "/checkmail", http.StatusSeeOther)
 }
 
 func loginUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Warn("Invalid HTTP method for loginUser")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
+	// Extract user credentials from the request
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	// Validate if username and password are provided
+	if username == "" || password == "" {
+		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		return
+	}
+
+	// Authenticate user with provided credentials
+	err := users.DefaultUserService.AuthenticateUser(db, username, password)
+	if err != nil {
+		log.WithError(err).Warn("Authentication failed")
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	// Authentication successful, redirect user to library page
+	http.Redirect(w, r, "/library", http.StatusSeeOther)
 }
 
 func getUser(r *http.Request) users.User {

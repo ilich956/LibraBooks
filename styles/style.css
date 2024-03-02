@@ -47,6 +47,10 @@ button {
     width: 100%;
 }
 
+.registerButton{
+    margin: 10px;
+}
+
 button:hover {
     background-color: #45a049;
 }

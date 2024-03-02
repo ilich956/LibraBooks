@@ -1,0 +1,48 @@
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:24:58+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:24:58+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:27:18+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:27:18+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:28:32+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:28:32+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:28:44+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:28:44+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:28:59+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"wedxcrftvgyh","Password":"wedxcrftvgyh"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:31:18+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:31:18+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:31:32+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"wedxcrftvgyhs","Password":"wedxcrftvgyhs"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:33:05+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:33:05+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:33:32+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"confiramtion","Password":"confiramtion"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:34:06+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:34:06+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:34:25+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"confiramtiond","Password":"confiramtiond"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:37:12+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:37:12+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:37:34+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"v","Password":"w"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:40:39+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:40:39+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:40:58+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"ilya.abramov.2009","Password":"ilya.abramov.2009"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:45:00+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:45:00+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:45:23+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"f","Password":"f"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:48:03+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:48:03+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:48:24+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"fg","Password":"fg"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T15:54:20+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T15:54:20+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T15:54:42+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"d","Password":"d"}}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T16:06:59+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T16:06:59+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T16:08:26+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T16:08:26+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T16:08:56+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T16:08:56+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T16:09:53+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T16:09:53+06:00"}
+{"level":"info","msg":"Logging initialized","time":"2024-03-02T16:20:11+06:00"}
+{"level":"info","msg":"Server listening on port:8000","time":"2024-03-02T16:20:11+06:00"}
+{"action":"register","level":"info","msg":"User registered successfully","time":"2024-03-02T16:20:40+06:00","user":{"Email":"ilyasabijanov@gmail.com","Username":"ilyas","Password":"a"}}
+{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T16:21:03+06:00"}
+{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T16:24:14+06:00"}
+{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T16:24:28+06:00"}
+{"error":"incorrect password","level":"warning","msg":"Authentication failed","time":"2024-03-02T16:24:35+06:00"}

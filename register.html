@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
@@ -11,7 +11,7 @@
 
 <body>
     <h1>Registration</h1>
-    
+
     <form action="/register" id="registrationForm" method="post">
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required><br>
@@ -28,10 +28,16 @@
 
         <button type="submit" class="registerButton">Register</button>
 
+        <button type="button" class="registerButton" onclick="redirectToLogin()">Login</button>
+
         <p>{{.}}</p>
     </form>
 
-   <!-- <script src="script.js"></script> -->
+    <script>
+        function redirectToLogin() {
+            window.location.href = "/login_form"; // Redirect to login.html
+        }
+    </script>
 </body>
 
 </html>

@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"text/template"
 
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-
 	"golang.org/x/crypto/bcrypt"
+	"main.go/mail-service"
 )
 
 const (
@@ -30,12 +33,26 @@ type authUser struct {
 	Email        string
 	Username     string
 	PasswordHash string
+	Confirmation string
 }
 
 var DefaultUserService userService
 var log = logrus.New()
 
 type userService struct {
+}
+
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file", err)
+
+	}
+
+	return os.Getenv(key)
 }
 
 func getPasswordHash(password string) (string, error) {
@@ -57,10 +74,14 @@ func (userService) CreateUser(db *sql.DB, newUser User) error {
 		return err
 	}
 
+	confiramtionString := uuid.New()
+	fmt.Println(confiramtionString.String())
+
 	newAuthUser := authUser{
 		Email:        newUser.Email,
 		Username:     newUser.Username,
 		PasswordHash: passwordHash,
+		Confirmation: confiramtionString.String(),
 	}
 
 	err = insertUserDB(db, newAuthUser)
@@ -69,10 +90,77 @@ func (userService) CreateUser(db *sql.DB, newUser User) error {
 		return err
 	}
 
+	//Confirmation link
+	apiURL := goDotEnvVariable("API_URL")
+	confiramtionLink := "activate/" + confiramtionString.String()
+	fullLink := apiURL + "/" + confiramtionLink
+	fmt.Println(fullLink)
+
+	err = mail.SendConfirmationEmail(newAuthUser.Email, fullLink)
+	if err != nil {
+		log.WithError(err).Error("error sending confirmation email")
+		return errors.New("error sending confirmation email")
+	}
+
 	log.WithFields(logrus.Fields{
 		"action": "create_user",
 		"user":   newUser.Username,
 	}).Info("User created successfully")
+
+	return nil
+}
+
+func (userService) Activate(db *sql.DB, link string) error {
+
+	var count int
+	fmt.Println("Activate link:" + link)
+
+	// Prepare the SQL query with placeholders for parameters
+	query := "SELECT COUNT(*) FROM user_table WHERE confirmation = $1"
+
+	// Execute the SQL query with the link parameter
+	err := db.QueryRow(query, link).Scan(&count)
+	if err != nil {
+		return fmt.Errorf("error checking link existence: %s", err)
+	}
+	fmt.Println("Count:", count)
+
+	if count == 0 {
+		return errors.New("link not found")
+	}
+
+	// Prepare the SQL query for updating isActivated
+	updateQuery := "UPDATE user_table SET isactivated = true WHERE confirmation = $1"
+
+	// Execute the SQL update query with the link parameter
+	_, err = db.Exec(updateQuery, link)
+	if err != nil {
+		log.Printf("Error updating user: %v\n", err)
+		return fmt.Errorf("error updating user: %s", err)
+	}
+
+	return nil
+}
+
+func (userService) AuthenticateUser(db *sql.DB, username string, password string) error {
+	var storedPasswordHash string
+	err := db.QueryRow("SELECT password FROM "+tableName+" WHERE username = $1", username).Scan(&storedPasswordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Username not found
+			log.WithError(err).Warn("User not found")
+			return errors.New("user not found")
+		}
+		log.WithError(err).Error("Error retrieving user password hash from database")
+		return fmt.Errorf("error retrieving user password hash: %s", err)
+	}
+
+	// Compare the stored password hash with the provided password
+	err = bcrypt.CompareHashAndPassword([]byte(storedPasswordHash), []byte(password))
+	if err != nil {
+		// Passwords don't match
+		return errors.New("incorrect password")
+	}
 
 	return nil
 }
@@ -132,8 +220,8 @@ func checkUsername(db *sql.DB, username string) error {
 }
 
 func insertUserDB(db *sql.DB, data authUser) error {
-	_, err := db.Exec("INSERT INTO "+tableName+" (email, username, password) VALUES ($1, $2, $3)",
-		data.Email, data.Username, data.PasswordHash)
+	_, err := db.Exec("INSERT INTO "+tableName+" (email, username, password, confirmation) VALUES ($1, $2, $3, $4)",
+		data.Email, data.Username, data.PasswordHash, data.Confirmation)
 	if err != nil {
 		log.WithError(err).Error("Error inserting user into database")
 		return fmt.Errorf("error inserting user into database: %s", err)
