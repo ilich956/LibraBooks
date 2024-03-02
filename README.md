@@ -1,4 +1,4 @@
-# LibraBooks
+![image](https://github.com/ilich956/LibraBooks/assets/125411778/3db0ac0f-237c-4c94-a4fc-e0083003337d)# LibraBooks
 
 ## Project Description
 
@@ -13,6 +13,9 @@ The **LibraBooks** is designed to help individuals or organizations efficiently 
 ## Screenshot
 
 ![image](https://github.com/ilich956/2task/assets/125411778/bb139968-36b8-45a8-9b47-13ab8fc04317)
+![image](https://github.com/ilich956/LibraBooks/assets/125411778/536895aa-68f6-4bd6-9718-b1d31ddd1cd1)
+![image](https://github.com/ilich956/LibraBooks/assets/125411778/c2d5ca19-9ed0-43ae-80d4-8f6246433712)
+
 
 
 ## Getting Started
@@ -21,6 +24,7 @@ The **LibraBooks** is designed to help individuals or organizations efficiently 
 
 1. Make sure you have PostgreSQL installed and running.
 2. Set up a database named `adv_database` with the specified table structure.
+
 
 ### Go Dependencies:
 
