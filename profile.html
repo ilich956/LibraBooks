@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Profile with Data and Skills - Bootdey.com</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin-top: 20px;
+            color: #1a202c;
+            text-align: left;
+            background-color: #e2e8f0;
+        }
+
+        .main-body {
+            padding: 15px;
+        }
+
+        .card {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0 solid rgba(0, 0, 0, .125);
+            border-radius: .25rem;
+        }
+
+        .card-body {
+            flex: 1 1 auto;
+            min-height: 1px;
+            padding: 1rem;
+        }
+
+        .gutters-sm {
+            margin-right: -8px;
+            margin-left: -8px;
+        }
+
+        .gutters-sm>.col,
+        .gutters-sm>[class*=col-] {
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+
+        .mb-3,
+        .my-3 {
+            margin-bottom: 1rem!important;
+        }
+
+        .bg-gray-300 {
+            background-color: #e2e8f0;
+        }
+
+        .h-100 {
+            height: 100%!important;
+        }
+
+        .shadow-none {
+            box-shadow: none!important;
+        }
+
+        .profile-pic-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .profile-pic-modal-content {
+            background: #fff;
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .profile-pic-modal img {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .user-details-block {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="main-body">
+            <header class="header_section">
+                <div class="container-fluid">
+                    <nav class="navbar navbar-expand-lg custom_nav-container">
+                        <a class="navbar-brand" href="/library">
+                            <span>LibraBook</span>
+                        </a>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class=""> </span>
+                        </button>
+                        <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav">
+                                <li class="nav-item active">
+                                    <button class="nav-link pl-lg-0 btn" onclick="window.location.href='/';">Home</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link btn" onclick="window.location.href='about';">About</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link btn"
+                                        onclick="window.location.href='categories';">Categories</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link btn" onclick="window.location.href='blog';">Blog</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link btn"
+                                        onclick="window.location.href='contact';">Contact Us</button>
+                                </li>
+                            </ul>
+                        </div> -->
+                    </nav>
+                </div>
+            </header>
+                          <!-- Profile Picture -->
+                          <div class="card">
+                              <div class="card-body">
+                                  <div class="d-flex flex-column align-items-center text-center">
+                                      <img src="n.jpg" alt="Admin" class="circle" width="150" id="profile-picture">
+                                      <div class="mt-3">
+                                          <h4>Nurzhan</h4>
+                                          <p class="text-secondary mb-1">Student</p>
+                                          <p class="text-muted font-size-sm">Semey</p>
+                                          <button class="btn btn-outline-primary" onclick="openProfilePicModal()">Edit</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+              
+                          <!-- Additional User Details Block -->
+                          <div class="user-details-block mt-3">
+                              <div class="card">
+                                  <div class="card-body">
+                                      <h5 class="card-title">User Details</h5>
+                                      <p class="card-text">Number: 12345</p>
+                                      <p class="card-text">Name: Nurzhan</p>
+                                      <p class="card-text">Second Name: [Your Second Name]</p>
+                                      <p class="card-text">Date of Birth: [Your Date of Birth]</p>
+                                  </div>
+                              </div>
+              
+                              <!-- Buttons for User Details -->
+                              <div class="mt-3">
+                                  <button class="btn btn-primary">Update Details</button>
+                                  <button type="button" class="btn btn-outline-primary" onclick="redirectToPsswd()">Change Password</button>
+                              </div>
+                          </div>
+                      </div>
+              
+                      <!-- Content on the right side of the profile picture -->
+                      <div class="container">
+                        <div class="row">
+                            <div class="col-md-8 order-md-2">
+                                <!-- Content on the right side of the profile picture -->
+                                
+                    
+                                <div class="card mt-3"> 
+                                    <div class="card-body">
+                                        <h5 class="card-title">Books</h5>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Product Name</th>
+                                                    <th>Quantity</th>
+                                                    <th>Total Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>Product A</td>
+                                                    <td>2</td>
+                                                    <td>$50.00</td>
+                                                </tr>
+                                                <!-- Add more rows as needed -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                    
+                            <div class="col-md-4 order-md-1">
+                                <!-- Profile picture and related content -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">About me</h5>
+                                        Welcome to WeBooks, where the magic of words comes to life! Founded by a trio of passionate individuals — Sanzhar, Nurzhan, and Bakhtiyar — WeBooks is dedicated to fostering a love for literature and providing a seamless experience in the digital realm.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>             
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add form elements or additional content for editing profile -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-pic-modal" id="profilePicModal">
+        <div class="profile-pic-modal-content">
+            <h4>Change Profile Picture</h4>
+            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Current Profile Picture"
+                class="rounded-circle" width="100">
+            <input type="file" id="profile-pic-input" accept="image/*">
+            <button class="btn btn-primary mt-3" onclick="changeProfilePicture()">Save</button>
+            <button class="btn btn-outline-secondary mt-3" onclick="closeProfilePicModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+    <script src="js/notification.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+
+    <script>
+        function redirectToPsswd() {
+            window.location.href = "/changepsswd"; // Redirect to login.html
+        }
+    </script>
+
+    <script>
+        function openProfilePicModal() {
+            $("#profilePicModal").css("display", "flex");
+        }
+
+        function closeProfilePicModal() {
+            $("#profilePicModal").css("display", "none");
+        }
+
+        function changeProfilePicture() {
+            var input = document.getElementById("profile-pic-input");
+            var profilePic = document.getElementById("profile-picture");
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    profilePic.src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+
+            closeProfilePicModal();
+        }
+    </script>
+
+</body>
+
+</html>

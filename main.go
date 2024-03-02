@@ -64,6 +64,11 @@ func main() {
 	router.HandleFunc("/login", rateLimitedHandler(loginUser))
 	router.HandleFunc("/userList", rateLimitedHandler(getUserList))
 	router.HandleFunc("/library", rateLimitedHandler(getLibrary))
+	router.HandleFunc("/profile", rateLimitedHandler(getProfile))
+	router.HandleFunc("/changepsswd", rateLimitedHandler(getPsswd))
+	router.HandleFunc("/change", rateLimitedHandler(changePassword))
+	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
+	router.HandleFunc("/sendotp", rateLimitedHandler(handleOTP))
 
 	// Serving static files
 	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
@@ -118,6 +123,18 @@ func getCheckMailPage(w http.ResponseWriter, r *http.Request) {
 	templating(w, "checkemail.html", nil)
 }
 
+func getOTP(w http.ResponseWriter, r *http.Request) {
+	templating(w, "otp-page.html", nil)
+}
+
+func getProfile(w http.ResponseWriter, r *http.Request) {
+	templating(w, "profile.html", nil)
+}
+
+func getPsswd(w http.ResponseWriter, r *http.Request) {
+	templating(w, "change-password.html", nil)
+}
+
 // BIBLIOTEKAAAAAAAAAAAAA
 func getLibrary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -127,8 +144,35 @@ func getLibrary(w http.ResponseWriter, r *http.Request) {
 
 	err := books.DefaultBookService.ShowBooks(w, r, db)
 	if err != nil {
-		http.Error(w, "Error showing user list", http.StatusInternalServerError)
+		http.Error(w, "Error showing library", http.StatusInternalServerError)
 	}
+}
+
+func handleOTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Warn("Invalid HTTP method for loginUser")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract user credentials from the request
+	email := r.FormValue("email")
+
+	// Validate if username and password are provided
+	if email == "" {
+		http.Error(w, "Email is required", http.StatusBadRequest)
+		return
+	}
+
+	// Authenticate user with provided credentials
+	err := users.DefaultUserService.OTPservice(db, email)
+	if err != nil {
+		log.WithError(err).Warn("Authentication failed")
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func activate(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +189,30 @@ func activate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/login_form", http.StatusSeeOther)
+}
+
+func changePassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	password := r.FormValue("password")
+	newpassword := r.FormValue("newpassword")
+	email := r.FormValue("email")
+
+	if password == "" || newpassword == "" || email == "" {
+		http.Error(w, " Password is required", http.StatusBadRequest)
+		return
+	}
+
+	err := users.DefaultUserService.ChangePassword(db, email, password, newpassword)
+	if err != nil {
+		log.WithError(err).Warn("Password changing failed")
+		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		return
+	}
+
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -212,7 +280,6 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Authentication successful, redirect user to library page
 	http.Redirect(w, r, "/library", http.StatusSeeOther)
 }
 

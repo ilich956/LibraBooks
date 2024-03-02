@@ -23,9 +23,16 @@
         <input type="password" id="password" name="password" required><br>
 
         <button type="submit" class="loginButton">Log in</button>
+
+        <button type="submit" class="loginButton" onclick="redirectToOTP()">Forgot password?</button>
     </form>
 
-    <!-- <script src="script.js"></script> -->
+    <script>
+        function redirectToOTP() {
+            window.location.href = "/otp"; 
+        }
+    </script>
+
 </body>
 
 </html>

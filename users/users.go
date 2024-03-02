@@ -165,6 +165,61 @@ func (userService) AuthenticateUser(db *sql.DB, username string, password string
 	return nil
 }
 
+func (userService) ChangePassword(db *sql.DB, email string, password string, newpassword string) error {
+	var storedPasswordHash string
+	err := db.QueryRow("SELECT password FROM "+tableName+" WHERE email = $1", email).Scan(&storedPasswordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Username not found
+			log.WithError(err).Warn("User not found")
+			return errors.New("user not found")
+		}
+		log.WithError(err).Error("Error retrieving user password hash from database")
+		return fmt.Errorf("error retrieving user password hash: %s", err)
+	}
+
+	// Compare the stored password hash with the provided password
+	err = bcrypt.CompareHashAndPassword([]byte(storedPasswordHash), []byte(password))
+	if err != nil {
+		// Passwords don't match
+		return errors.New("incorrect password")
+	}
+
+	// Hash the new password
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(newpassword), bcrypt.DefaultCost)
+	if err != nil {
+		log.WithError(err).Error("Error hashing new password")
+		return fmt.Errorf("error hashing new password: %s", err)
+	}
+
+	// Update the password in the database
+	_, err = db.Exec("UPDATE "+tableName+" SET password = $1 WHERE email = $2", newPasswordHash, email)
+	if err != nil {
+		log.WithError(err).Error("Error updating password in database")
+		return fmt.Errorf("error updating password in database: %s", err)
+	}
+
+	return nil
+}
+
+func (userService) OTPservice(db *sql.DB, email string) error {
+	otp := uuid.New()
+
+	_, err := db.Exec("UPDATE "+tableName+" SET otp = $1 WHERE email = $2", otp, email)
+	if err != nil {
+		log.WithError(err).Error("Error updating password in database")
+		return fmt.Errorf("error updating password in database: %s", err)
+	}
+
+	err = mail.SendOTPEmail(email, otp.String())
+	if err != nil {
+		log.WithError(err).Error("error sending confirmation email")
+		return errors.New("error sending confirmation email")
+	}
+
+	return nil
+}
+
 func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
 	users, err := getUserListDB(db)
 
