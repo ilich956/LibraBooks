@@ -1,1 +1,1 @@
-web: go run librabook/main.go
+web: bin/app
