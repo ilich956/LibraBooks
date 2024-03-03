@@ -1,4 +1,4 @@
-![image](https://github.com/ilich956/LibraBooks/assets/125411778/3db0ac0f-237c-4c94-a4fc-e0083003337d)# LibraBooks
+# LibraBooks
 
 ## Project Description
 
