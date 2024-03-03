@@ -73,6 +73,7 @@ func main() {
 	router.HandleFunc("/sendotp", rateLimitedHandler(handleOTP))
 	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
 	router.HandleFunc("/borrow", rateLimitedHandler(handleBorrowBook))
+	router.HandleFunc("/return", rateLimitedHandler(handleReturnBook))
 
 	// Serving static files
 	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
@@ -134,13 +135,13 @@ func getOTP(w http.ResponseWriter, r *http.Request) {
 func getProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return // Return after calling http.Error
+		return
 	}
 
 	err := books.DefaultBookService.ShowBorrowedBooks(w, r, db)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return // Return after calling http.Error
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -170,6 +171,18 @@ func handleBorrowBook(w http.ResponseWriter, r *http.Request) {
 	err := books.DefaultBookService.BorrowBook(w, r, db)
 	if err != nil {
 		http.Error(w, "Error showing library", http.StatusInternalServerError)
+	}
+}
+
+func handleReturnBook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := books.DefaultBookService.ReturnBook(w, r, db)
+	if err != nil {
+		http.Error(w, "Error returning book", http.StatusInternalServerError)
 	}
 }
 
@@ -301,11 +314,11 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract user credentials from the request
-	username := r.FormValue("username")
+	username := r.FormValue("email")
 	password := r.FormValue("password")
 
 	if username == "" || password == "" {
-		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		http.Error(w, "Email and password are required", http.StatusBadRequest)
 		return
 	}
 
@@ -322,7 +335,7 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Authenticate user with provided credentials
-	err = users.DefaultUserService.AuthenticateUser(db, username, password)
+	err = users.DefaultUserService.AuthenticateUser(db, username, password, token)
 	if err != nil {
 		log.WithError(err).Warn("Authentication failed")
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)

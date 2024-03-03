@@ -187,7 +187,6 @@ func (bookService) BorrowBook(w http.ResponseWriter, r *http.Request, db *sql.DB
 	}
 
 	// Respond with a success message or any necessary response
-	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Book with ID %d has been borrowed successfully", id)
 
 	return nil
@@ -200,6 +199,14 @@ func (bookService) ShowBorrowedBooks(w http.ResponseWriter, r *http.Request, db 
 		return errors.New("token not found in cookies")
 	}
 	token := cookie.Value
+
+	var userID int
+	var username string
+
+	err = db.QueryRow("SELECT id, username FROM user_table WHERE token = $1", token).Scan(&userID, &username)
+	if err != nil {
+		return err
+	}
 
 	// Query the database to get borrowed books for the user
 	rows, err := db.Query("SELECT book_name, book_author, book_genre FROM books INNER JOIN borrowings ON books.id = borrowings.book_id WHERE borrowings.user_id = (SELECT id FROM user_table WHERE token = $1)", token)
@@ -227,10 +234,71 @@ func (bookService) ShowBorrowedBooks(w http.ResponseWriter, r *http.Request, db 
 		return err
 	}
 
-	err = tmpl.Execute(w, borrowedBooks)
+	data := struct {
+		Username      string
+		BorrowedBooks []BorrowedBook
+	}{
+		Username:      username,
+		BorrowedBooks: borrowedBooks,
+	}
+
+	err = tmpl.Execute(w, data)
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (bookService) ReturnBook(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
+	// Parse form data to get the book name
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	bookName := r.Form.Get("book_name")
+	if bookName == "" {
+		return errors.New("book name is required")
+	}
+
+	// Retrieve user ID using token from cookies
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return errors.New("token not found in cookies")
+	}
+
+	token := cookie.Value
+	var userID int
+	err = db.QueryRow("SELECT id FROM user_table WHERE token = $1", token).Scan(&userID)
+	if err != nil {
+		return err
+	}
+
+	// Check if the user has borrowed the book
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM books INNER JOIN borrowings ON books.id = borrowings.book_id WHERE books.book_name = $1 AND borrowings.user_id = $2)", bookName, userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return errors.New("the user has not borrowed this book")
+	}
+
+	// Remove borrowing record from the database
+	_, err = db.Exec("DELETE FROM borrowings WHERE book_id IN (SELECT id FROM books WHERE book_name = $1) AND user_id = $2", bookName, userID)
+	if err != nil {
+		return err
+	}
+
+	// Update the database to mark the book as returned
+	_, err = db.Exec("UPDATE books SET borrowed = false WHERE book_name = $1", bookName)
+	if err != nil {
+		return err
+	}
+
+	// Respond with a success message or any necessary response
+	fmt.Fprintf(w, "Book '%s' has been returned successfully", bookName)
 
 	return nil
 }

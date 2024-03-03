@@ -143,10 +143,19 @@ func (userService) Activate(db *sql.DB, link string) error {
 	return nil
 }
 
-func (userService) AuthenticateUser(db *sql.DB, username string, password string) error {
+func SaveToken(db *sql.DB, email string, token string) error {
+	_, err := db.Exec("UPDATE "+tableName+" SET token = $1 WHERE email = $2", token, email)
+	if err != nil {
+		log.WithError(err).Error("Error saving token in database")
+		return fmt.Errorf("error saving token in database: %s", err)
+	}
+	return nil
+}
+
+func (userService) AuthenticateUser(db *sql.DB, username string, password string, token string) error {
 	var storedPasswordHash string
 	var storedOTP *string
-	err := db.QueryRow("SELECT password, otp FROM "+tableName+" WHERE username = $1", username).Scan(&storedPasswordHash, &storedOTP) //
+	err := db.QueryRow("SELECT password, otp FROM "+tableName+" WHERE email = $1", username).Scan(&storedPasswordHash, &storedOTP) //
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.WithError(err).Warn("User not found")
@@ -158,7 +167,7 @@ func (userService) AuthenticateUser(db *sql.DB, username string, password string
 
 	if storedOTP != nil && password == *storedOTP {
 		// Clear OTP from database
-		_, err := db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE username = $1", username)
+		_, err := db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE email = $1", username)
 		if err != nil {
 			log.WithError(err).Error("Error clearing OTP in database")
 			return fmt.Errorf("error clearing OTP in database: %s", err)
@@ -172,11 +181,18 @@ func (userService) AuthenticateUser(db *sql.DB, username string, password string
 	}
 
 	if storedOTP != nil {
-		_, err = db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE username = $1", username)
+		_, err = db.Exec("UPDATE "+tableName+" SET otp = NULL WHERE email = $1", username)
 		if err != nil {
 			log.WithError(err).Error("Error clearing OTP in database")
 			return fmt.Errorf("error clearing OTP in database: %s", err)
 		}
+	}
+
+	err = SaveToken(db, username, token)
+	if err != nil {
+		// Handle error
+		log.WithError(err).Error("Error saving token")
+		return err
 	}
 
 	return nil
@@ -238,6 +254,25 @@ func (userService) OTPservice(db *sql.DB, email string) error {
 }
 
 func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return errors.New("token not found in cookies")
+	}
+	token := cookie.Value
+
+	// Query the database to check if the user is an admin
+	var isAdmin bool
+	err = db.QueryRow("SELECT isadmin FROM user_table WHERE token = $1", token).Scan(&isAdmin)
+	if err != nil {
+		return errors.New("error checking user admin status")
+	}
+
+	// If the user is not an admin, deny access
+	if !isAdmin {
+		http.Error(w, "Access denied: Only admins can view user list", http.StatusUnauthorized)
+		return nil
+	}
+
 	users, err := getUserListDB(db)
 
 	if err != nil {

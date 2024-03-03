@@ -142,9 +142,9 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex flex-column align-items-center text-center">
-                        <img src="n.jpg" alt="Admin" class="circle" width="150" id="profile-picture">
+                        <h3>{{.Username}}</h3>
+                        <img src="n.jpg" alt="" class="circle" width="150" id="profile-picture">
                         <div class="mt-3">
-                            <h4>{{.username}}</h4>
                             <button class="btn btn-outline-primary" onclick="openProfilePicModal()">Edit</button>
                         </div>
                     </div>
@@ -154,11 +154,7 @@
             <!-- Additional User Details Block -->
             <div class="user-details-block mt-3">
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">User Details</h5>
-                        <p class="card-text">{{.email}}</p>
-                        <p class="card-text">{{.username}}</p>
-                    </div>
+
                 </div>
 
                 <!-- Buttons for User Details -->
@@ -183,19 +179,23 @@
                                 <thead>
                                     <tr>
                                         <th>Book name</th>
-                                        <th>Book genre</th>
                                         <th>Book author</th>
-                                        <th>    
-                                
+                                        <th>Book genre</th>
+                                        <th>
+
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{range .}}
+                                    {{range .BorrowedBooks}}
                                     <tr>
                                         <td>{{.BookName}}</td>
-                                        <td>{{.BookAuthor}}</td>
                                         <td>{{.BookGenre}}</td>
+                                        <td>{{.BookAuthor}}</td>
+                                        <td>
+                                            <button class="btn btn-primary"
+                                                onclick="returnBook({{.BookName}})">Return</button>
+                                        </td>
                                     </tr>
                                     {{end}}
                                 </tbody>
@@ -268,6 +268,29 @@
             window.location.href = "/changepsswd"; // Redirect to login.html
         }
     </script>
+
+
+    <script>
+        function returnBook(bookName) {
+            // Send a POST request to the server to mark the book as returned
+            fetch('/return?book_name=' + encodeURIComponent(bookName), {
+                method: 'POST',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // If returning was successful, reload the page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to return the book');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+
+
 
     <script>
         function openProfilePicModal() {
