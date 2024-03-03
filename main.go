@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 	"main.go/books"
+	"main.go/mail-service"
 	"main.go/token"
 	"main.go/users"
 )
@@ -35,6 +37,11 @@ const (
 type ResponseData struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
+}
+
+type EmailData struct {
+	Email   string `json:"email"`
+	Content string `json:"content"`
 }
 
 var db *sql.DB
@@ -65,15 +72,21 @@ func main() {
 	router.HandleFunc("/activate/{link}", activate)
 	router.HandleFunc("/register", rateLimitedHandler(registerUser))
 	router.HandleFunc("/login", rateLimitedHandler(loginUser))
-	router.HandleFunc("/userList", rateLimitedHandler(getUserList))
-	router.HandleFunc("/library", rateLimitedHandler(getLibrary))
-	router.HandleFunc("/profile", rateLimitedHandler(getProfile))
-	router.HandleFunc("/changepsswd", rateLimitedHandler(getPsswd))
-	router.HandleFunc("/change", rateLimitedHandler(changePassword))
 	router.HandleFunc("/sendotp", rateLimitedHandler(handleOTP))
 	router.HandleFunc("/otp", rateLimitedHandler(getOTP))
+
+	router.HandleFunc("/userList", rateLimitedHandler(getUserList))
+	router.HandleFunc("/sendemail", rateLimitedHandler(handleSendEmail))
+
+	router.HandleFunc("/library", rateLimitedHandler(getLibrary))
+	router.HandleFunc("/profile", rateLimitedHandler(getProfile))
+
+	router.HandleFunc("/changepsswd", rateLimitedHandler(getPsswd))
+	router.HandleFunc("/change", rateLimitedHandler(changePassword))
+
 	router.HandleFunc("/borrow", rateLimitedHandler(handleBorrowBook))
 	router.HandleFunc("/return", rateLimitedHandler(handleReturnBook))
+	router.HandleFunc("/deleteuser", rateLimitedHandler(handleDeleteUser))
 
 	// Serving static files
 	router.PathPrefix("/book-covers/").Handler(http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
@@ -160,6 +173,63 @@ func getLibrary(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Error showing library", http.StatusInternalServerError)
 	}
+}
+
+func handleSendEmail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse JSON request body
+	var emailData EmailData
+	err := json.NewDecoder(r.Body).Decode(&emailData)
+	if err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Extract email and content from emailData
+	email := emailData.Email
+	content := emailData.Content
+
+	fmt.Println("Email:", email)
+	fmt.Println("Content:", content)
+
+	// Call the function to send the email
+	err = mail.SendEmail(email, content)
+	if err != nil {
+		http.Error(w, "Error sending email", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleDeleteUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse the user ID from the request body
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		return
+	}
+	userID := r.Form.Get("user_id")
+
+	// Perform the deletion operation
+	err = users.DefaultUserService.DeleteUser(db, userID)
+	if err != nil {
+		http.Error(w, "Error deleting user", http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleBorrowBook(w http.ResponseWriter, r *http.Request) {

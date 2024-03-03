@@ -23,6 +23,14 @@ const (
 	tableName  = "user_table"
 )
 
+type DisplayUser struct {
+	ID          int
+	Email       string
+	Username    string
+	IsActivated bool
+	IsAdmin     bool
+}
+
 type User struct {
 	Email    string
 	Username string
@@ -30,11 +38,14 @@ type User struct {
 }
 
 type authUser struct {
+	ID           int
 	Email        string
 	Username     string
 	PasswordHash string
 	Confirmation string
 	Token        string
+	IsActivated  bool
+	IsAdmin      bool
 }
 
 var DefaultUserService userService
@@ -107,6 +118,16 @@ func (userService) CreateUser(db *sql.DB, newUser User, token string) error {
 		"action": "create_user",
 		"user":   newUser.Username,
 	}).Info("User created successfully")
+
+	return nil
+}
+
+func (userService) DeleteUser(db *sql.DB, userID string) error {
+	_, err := db.Exec("DELETE FROM user_table WHERE id = $1", userID)
+	if err != nil {
+		// Handle the error
+		return fmt.Errorf("error deleting user: %s", err)
+	}
 
 	return nil
 }
@@ -254,6 +275,7 @@ func (userService) OTPservice(db *sql.DB, email string) error {
 }
 
 func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
+	// Retrieve the user's token from the request cookies
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		return errors.New("token not found in cookies")
@@ -273,25 +295,33 @@ func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.
 		return nil
 	}
 
+	// Retrieve the user list from the database
 	users, err := getUserListDB(db)
-
 	if err != nil {
 		log.WithError(err).Error("Error getting user list from database")
-		return errors.New("cant get userlist")
+		return errors.New("failed to retrieve user list from the database")
 	}
+
+	// Parse the HTML template
 	ts, err := template.ParseFiles("userList.html")
 	if err != nil {
 		log.WithError(err).Error("Error parsing user list template")
-		return err
+		return errors.New("failed to parse HTML template")
 	}
-	log.Info("User list displayed successfully")
-	ts.Execute(w, users)
 
+	// Execute the template with the user list data
+	err = ts.Execute(w, users)
+	if err != nil {
+		log.WithError(err).Error("Error executing HTML template")
+		return errors.New("failed to render user list template")
+	}
+
+	log.Info("User list displayed successfully")
 	return nil
 }
 
 func getUserListDB(db *sql.DB) ([]authUser, error) {
-	rows, err := db.Query(`SELECT "username","password" FROM user_table`)
+	rows, err := db.Query(`SELECT id, email, username, isactivated, isadmin FROM user_table`)
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %s", err)
 	}
@@ -301,7 +331,7 @@ func getUserListDB(db *sql.DB) ([]authUser, error) {
 
 	for rows.Next() {
 		var u authUser
-		err := rows.Scan(&u.Username, &u.PasswordHash)
+		err := rows.Scan(&u.ID, &u.Email, &u.Username, &u.IsActivated, &u.IsAdmin)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %s", err)
 		}

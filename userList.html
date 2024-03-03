@@ -23,6 +23,7 @@
                     <th>Username</th>
                     <th>Is Activated</th>
                     <th>Is Admin</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,11 +34,78 @@
                     <td>{{.Username}}</td>
                     <td>{{.IsActivated}}</td>
                     <td>{{.IsAdmin}}</td>
+                    <td>
+                        <button class="btn btn-outline-primary" onclick="deleteUser({{.ID}})">Delete</button>
+                        <input type="text" id="email_{{.Email}}" placeholder="Enter text">
+                        <button class="btn btn-outline-primary" onclick="sendEmailToUser('{{.Email}}')">Send
+                            Email</button>
+                    </td>
                 </tr>
                 {{end}}
             </tbody>
         </table>
     </div>
+
+    <script>
+        function deleteUser(userId) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                // Send a fetch request to delete the user
+                fetch('/deleteuser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'user_id=' + userId
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete user');
+                        }
+                        // Reload the page if deletion is successful
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error deleting user:', error);
+                        alert('Failed to delete user. Please try again later.');
+                    });
+            }
+        }
+    </script>
+
+    <script>
+        function sendEmailToUser(email) {
+            // Retrieve the email content from the input field
+            var emailContent = document.getElementById("email_" + email).value;
+            console.log(email)
+            console.log(emailContent)
+            // Prepare the data to be sent to the backend
+            var data = {
+                email: email,
+                content: emailContent
+            };
+
+            // Make a fetch request to the backend
+            fetch('/sendemail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log('Email sent successfully!');
+                })
+                .catch(error => {
+                    console.error('Error sending email:', error.message);
+                });
+        }
+    </script>
+
+
+
 </body>
 
 </html>

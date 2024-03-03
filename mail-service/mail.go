@@ -88,3 +88,34 @@ func SendOTPEmail(email string, otp string) error {
 	fmt.Println("Email Sent!")
 	return nil
 }
+
+func SendEmail(email, text string) error {
+	// Sender data.
+	from := "librabook12@gmail.com"
+	password := "tpua wetq aqkp ossq"
+
+	// smtp server configuration.
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
+	// Authentication.
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Receiver email address.
+	to := []string{email}
+
+	// Construct the email body
+	body := "To: " + email + "\r\n" +
+		"Subject: LibraBook\r\n" +
+		"\r\n" +
+		text
+
+	// Sending email.
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(body))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Email Sent!")
+	return nil
+}
