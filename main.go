@@ -71,11 +71,6 @@ func main() {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(createTable)
-	if err != nil {
-		fmt.Println("Error creating user_table:", err)
-		return
-	}
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", getRegisterPage)
