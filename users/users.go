@@ -16,11 +16,11 @@ import (
 	"main.go/mail-service"
 )
 
-const (
-	port       = ":8080"
-	connStr    = "postgres://postgres:bayipket@localhost/adv_database?sslmode=disable"
-	driverName = "postgres"
-	tableName  = "user_table"
+var (
+	port       = goDotEnvVariable("PORT")
+	connStr    = goDotEnvVariable("CONN_STR")
+	driverName = goDotEnvVariable("DRIVERNAME")
+	tableName  = goDotEnvVariable("TABLENAME")
 )
 
 type DisplayUser struct {

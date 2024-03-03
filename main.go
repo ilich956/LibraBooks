@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
@@ -18,11 +19,24 @@ import (
 	"main.go/users"
 )
 
-const (
-	port        = ":8000"
-	connStr     = "postgres://postgres:bayipket@localhost/adv_database?sslmode=disable"
-	driverName  = "postgres"
-	tableName   = "user_table"
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file", err)
+
+	}
+
+	return os.Getenv(key)
+}
+
+var (
+	port        = goDotEnvVariable("PORT")
+	connStr     = goDotEnvVariable("CONN_STR")
+	driverName  = goDotEnvVariable("DRIVERNAME")
+	tableName   = goDotEnvVariable("TABLENAME")
 	createTable = `
 		CREATE TABLE IF NOT EXISTS user_table (
 			id SERIAL PRIMARY KEY,
@@ -45,7 +59,7 @@ type EmailData struct {
 }
 
 var db *sql.DB
-var limiter = rate.NewLimiter(1, 3)
+var limiter = rate.NewLimiter(rate.Limit(100)/3, 100)
 var log = logrus.New()
 
 func main() {
@@ -63,8 +77,6 @@ func main() {
 		return
 	}
 	router := mux.NewRouter()
-
-	// router.Use(middleware.AttachTokenToRequest)
 
 	router.HandleFunc("/", getRegisterPage)
 	router.HandleFunc("/login_form", rateLimitedHandler(getLoginPage))
@@ -95,13 +107,6 @@ func main() {
 	log.Info("Server listening on port", port)
 	fmt.Println("Server listening on port", port)
 	http.ListenAndServe(port, router)
-	// http.Handle("/book-covers/", http.StripPrefix("/book-covers/", http.FileServer(http.Dir("book-covers"))))
-	// http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
-	// http.HandleFunc("/", rateLimitedHandler(userHandler))
-
-	// log.Info("Server listening on port", port)
-	// fmt.Println("Server listening on port", port)
-	// http.ListenAndServe(port, nil)
 }
 
 func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
@@ -114,28 +119,6 @@ func rateLimitedHandler(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	}
 }
-
-// func userHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.URL.Path {
-// 	case "/":
-// 		getRegisterPage(w, r) //handleRegistration(w, r)
-// 	case "/login_form":
-// 		getLoginPage(w, r) //handleLogin(w, r)
-// 	case "/checkmail":
-// 		getCheckMailPage(w, r)
-// 	case "/activate/{link}":
-// 		activate(w, r)
-// 	case "/register":
-// 		registerUser(w, r)
-// 	case "/login":
-// 		loginUser(w, r)
-// 	case "/userList":
-// 		getUserList(w, r)
-// 	case "/library":
-// 		getLibrary(w, r)
-// 	}
-// 	// http.Error(w, "Method not all", http.StatusMethodNotAllowed)
-// }
 
 func getCheckMailPage(w http.ResponseWriter, r *http.Request) {
 	templating(w, "checkemail.html", nil)
@@ -162,7 +145,6 @@ func getPsswd(w http.ResponseWriter, r *http.Request) {
 	templating(w, "change-password.html", nil)
 }
 
-// BIBLIOTEKAAAAAAAAAAAAA
 func getLibrary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -181,7 +163,6 @@ func handleSendEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse JSON request body
 	var emailData EmailData
 	err := json.NewDecoder(r.Body).Decode(&emailData)
 	if err != nil {
@@ -189,21 +170,18 @@ func handleSendEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract email and content from emailData
 	email := emailData.Email
 	content := emailData.Content
 
 	fmt.Println("Email:", email)
 	fmt.Println("Content:", content)
 
-	// Call the function to send the email
 	err = mail.SendEmail(email, content)
 	if err != nil {
 		http.Error(w, "Error sending email", http.StatusInternalServerError)
 		return
 	}
 
-	// Respond with success
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -213,7 +191,6 @@ func handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the user ID from the request body
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
@@ -221,14 +198,12 @@ func handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := r.Form.Get("user_id")
 
-	// Perform the deletion operation
 	err = users.DefaultUserService.DeleteUser(db, userID)
 	if err != nil {
 		http.Error(w, "Error deleting user", http.StatusInternalServerError)
 		return
 	}
 
-	// Return success response
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -263,16 +238,13 @@ func handleOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user credentials from the request
 	email := r.FormValue("email")
 
-	// Validate if username and password are provided
 	if email == "" {
 		http.Error(w, "Email is required", http.StatusBadRequest)
 		return
 	}
 
-	// Authenticate user with provided credentials
 	err := users.DefaultUserService.OTPservice(db, email)
 	if err != nil {
 		log.WithError(err).Warn("Authentication failed")
@@ -288,8 +260,7 @@ func activate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	link := mux.Vars(r)["link"] // Get the variables from the request URL
-	// Extract the value of ":link" parameter
+	link := mux.Vars(r)["link"]
 	fmt.Println(link)
 	err := users.DefaultUserService.Activate(db, link)
 	if err != nil {
@@ -322,8 +293,6 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
-
-////////////////////////////////////////////////////////////////////////
 
 func getUserList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -404,7 +373,6 @@ func loginUser(w http.ResponseWriter, r *http.Request) {
 		Value: token,
 	})
 
-	// Authenticate user with provided credentials
 	err = users.DefaultUserService.AuthenticateUser(db, username, password, token)
 	if err != nil {
 		log.WithError(err).Warn("Authentication failed")
@@ -441,19 +409,19 @@ func templating(w http.ResponseWriter, filename string, data interface{}) {
 	t.ExecuteTemplate(w, filename, data)
 }
 
-func init() {
-	// Create or open the log file
-	file, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		// Set the logrus output to the file
-		log.SetOutput(file)
-	} else {
-		// If unable to open the log file, log to standard output
-		log.Warn("Failed to open log file. Logging to standard output.")
-	}
+// func init() {
+// 	// Create or open the log file
+// 	file, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+// 	if err == nil {
+// 		// Set the logrus output to the file
+// 		log.SetOutput(file)
+// 	} else {
+// 		// If unable to open the log file, log to standard output
+// 		log.Warn("Failed to open log file. Logging to standard output.")
+// 	}
 
-	log.SetFormatter(&logrus.JSONFormatter{})
-	log.SetLevel(logrus.InfoLevel)
+// 	log.SetFormatter(&logrus.JSONFormatter{})
+// 	log.SetLevel(logrus.InfoLevel)
 
-	log.Info("Logging initialized")
-}
+// 	log.Info("Logging initialized")
+// }

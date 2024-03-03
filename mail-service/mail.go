@@ -3,18 +3,34 @@ package mail
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/smtp"
+	"os"
 	"text/template"
+
+	"github.com/joho/godotenv"
 )
+
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file", err)
+
+	}
+
+	return os.Getenv(key)
+}
 
 func SendConfirmationEmail(email string, link string) error {
 	// Sender data.
-	from := "librabook12@gmail.com"
-	password := "tpua wetq aqkp ossq"
+	from := goDotEnvVariable("FROM_MAIL")
+	password := goDotEnvVariable("PASSWORD_MAIL")
 
-	// smtp server configuration.
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	smtpHost := goDotEnvVariable("SMTP_HOST")
+	smtpPort := goDotEnvVariable("SMTP_PORT")
 
 	//message := []byte("This is a test email message.")
 
@@ -49,13 +65,11 @@ func SendConfirmationEmail(email string, link string) error {
 }
 
 func SendOTPEmail(email string, otp string) error {
-	// Sender data.
-	from := "librabook12@gmail.com"
-	password := "tpua wetq aqkp ossq"
+	from := goDotEnvVariable("FROM_MAIL")
+	password := goDotEnvVariable("PASSWORD_MAIL")
 
-	// smtp server configuration.
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	smtpHost := goDotEnvVariable("SMTP_HOST")
+	smtpPort := goDotEnvVariable("SMTP_PORT")
 
 	//message := []byte("This is a test email message.")
 
@@ -90,27 +104,21 @@ func SendOTPEmail(email string, otp string) error {
 }
 
 func SendEmail(email, text string) error {
-	// Sender data.
-	from := "librabook12@gmail.com"
-	password := "tpua wetq aqkp ossq"
+	from := goDotEnvVariable("FROM_MAIL")
+	password := goDotEnvVariable("PASSWORD_MAIL")
 
-	// smtp server configuration.
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	smtpHost := goDotEnvVariable("SMTP_HOST")
+	smtpPort := goDotEnvVariable("SMTP_PORT")
 
-	// Authentication.
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
-	// Receiver email address.
 	to := []string{email}
 
-	// Construct the email body
 	body := "To: " + email + "\r\n" +
 		"Subject: LibraBook\r\n" +
 		"\r\n" +
 		text
 
-	// Sending email.
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(body))
 	if err != nil {
 		fmt.Println(err)
