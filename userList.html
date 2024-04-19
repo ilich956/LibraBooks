@@ -7,32 +7,31 @@
     <title>User List</title>
 
     <link rel="stylesheet" href="styles/userStyle.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-
+    <div class="empty"></div>
     <div class="container">
-        <h1>User List</h1>
-
+        
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Email</th>
-                    <th>Username</th>
+                    <!-- <th>Username</th> -->
                     <th>Is Activated</th>
                     <th>Is Admin</th>
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
+           <tbody>
                 {{range .}}
                 <tr>
                     <td>{{.ID}}</td>
                     <td>{{.Email}}</td>
-                    <td>{{.Username}}</td>
-                    <td>{{.IsActivated}}</td>
+                    <!-- <td>{{.Username}}</td> -->
+                    <td>{{.IsActivated}}</td> 
                     <td>{{.IsAdmin}}</td>
                     <td>
                         <button class="btn btn-outline-primary" onclick="deleteUser({{.ID}})">Delete</button>
@@ -42,8 +41,11 @@
                     </td>
                 </tr>
                 {{end}}
-            </tbody>
+            </tbody> 
         </table>
+
+        <button class="btn btn-outline-primary" onclick="sendEmailToAll()">Send
+            Email To All</button>
     </div>
 
     <script>
@@ -97,6 +99,25 @@
                         throw new Error('Network response was not ok');
                     }
                     console.log('Email sent successfully!');
+                })
+                .catch(error => {
+                    console.error('Error sending email:', error.message);
+                });
+        }
+
+
+        function sendEmailToAll(){
+            fetch('/sendemailall', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log('Emails sent successfully!');
                 })
                 .catch(error => {
                     console.error('Error sending email:', error.message);

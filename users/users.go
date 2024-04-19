@@ -13,7 +13,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"main.go/mail-service"
 )
 
 var (
@@ -108,7 +107,7 @@ func (userService) CreateUser(db *sql.DB, newUser User, token string) error {
 	fullLink := apiURL + "/" + confiramtionLink
 	fmt.Println(fullLink)
 
-	err = mail.SendConfirmationEmail(newAuthUser.Email, fullLink)
+	// err = mail.SendConfirmationEmail(newAuthUser.Email, fullLink)
 	if err != nil {
 		log.WithError(err).Error("error sending confirmation email")
 		return errors.New("error sending confirmation email")
@@ -265,7 +264,7 @@ func (userService) OTPservice(db *sql.DB, email string) error {
 		return fmt.Errorf("error updating password in database: %s", err)
 	}
 
-	err = mail.SendOTPEmail(email, otp.String())
+	// err = mail.SendOTPEmail(email, otp.String())
 	if err != nil {
 		log.WithError(err).Error("error sending confirmation email")
 		return errors.New("error sending confirmation email")
@@ -321,7 +320,9 @@ func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.
 }
 
 func getUserListDB(db *sql.DB) ([]authUser, error) {
-	rows, err := db.Query(`SELECT id, email, username, isactivated, isadmin FROM user_table`)
+	// rows, err := db.Query(`SELECT id, email, username, isactivated, isadmin FROM user_table`)
+	rows, err := db.Query(`SELECT id, email, isactivated, isadmin FROM user_table LIMIT 5`)
+
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %s", err)
 	}
@@ -331,7 +332,9 @@ func getUserListDB(db *sql.DB) ([]authUser, error) {
 
 	for rows.Next() {
 		var u authUser
-		err := rows.Scan(&u.ID, &u.Email, &u.Username, &u.IsActivated, &u.IsAdmin)
+		// err := rows.Scan(&u.ID, &u.Email, &u.Username, &u.IsActivated, &u.IsAdmin)
+		err := rows.Scan(&u.ID, &u.Email, &u.IsActivated, &u.IsAdmin)
+
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %s", err)
 		}

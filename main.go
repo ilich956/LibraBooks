@@ -84,6 +84,7 @@ func main() {
 
 	router.HandleFunc("/userList", rateLimitedHandler(getUserList))
 	router.HandleFunc("/sendemail", rateLimitedHandler(handleSendEmail))
+	router.HandleFunc("/sendemailall", rateLimitedHandler(handleSendEmailAll))
 
 	router.HandleFunc("/library", rateLimitedHandler(getLibrary))
 	router.HandleFunc("/profile", rateLimitedHandler(getProfile))
@@ -172,6 +173,21 @@ func handleSendEmail(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Content:", content)
 
 	err = mail.SendEmail(email, content)
+	if err != nil {
+		http.Error(w, "Error sending email", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleSendEmailAll(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := mail.SendEmailAll(db, 1)
 	if err != nil {
 		http.Error(w, "Error sending email", http.StatusInternalServerError)
 		return
@@ -404,19 +420,19 @@ func templating(w http.ResponseWriter, filename string, data interface{}) {
 	t.ExecuteTemplate(w, filename, data)
 }
 
-// func init() {
-// 	// Create or open the log file
-// 	file, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-// 	if err == nil {
-// 		// Set the logrus output to the file
-// 		log.SetOutput(file)
-// 	} else {
-// 		// If unable to open the log file, log to standard output
-// 		log.Warn("Failed to open log file. Logging to standard output.")
-// 	}
+func init() {
+	// Create or open the log file
+	file, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		// Set the logrus output to the file
+		log.SetOutput(file)
+	} else {
+		// If unable to open the log file, log to standard output
+		log.Warn("Failed to open log file. Logging to standard output.")
+	}
 
-// 	log.SetFormatter(&logrus.JSONFormatter{})
-// 	log.SetLevel(logrus.InfoLevel)
+	log.SetFormatter(&logrus.JSONFormatter{})
+	log.SetLevel(logrus.InfoLevel)
 
-// 	log.Info("Logging initialized")
-// }
+	log.Info("Logging initialized")
+}
