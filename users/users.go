@@ -274,41 +274,35 @@ func (userService) OTPservice(db *sql.DB, email string) error {
 }
 
 func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.DB) error {
-	// Retrieve the user's token from the request cookies
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		return errors.New("token not found in cookies")
 	}
 	token := cookie.Value
 
-	// Query the database to check if the user is an admin
 	var isAdmin bool
 	err = db.QueryRow("SELECT isadmin FROM user_table WHERE token = $1", token).Scan(&isAdmin)
 	if err != nil {
 		return errors.New("error checking user admin status")
 	}
 
-	// If the user is not an admin, deny access
 	if !isAdmin {
 		http.Error(w, "Access denied: Only admins can view user list", http.StatusUnauthorized)
 		return nil
 	}
 
-	// Retrieve the user list from the database
 	users, err := getUserListDB(db)
 	if err != nil {
 		log.WithError(err).Error("Error getting user list from database")
 		return errors.New("failed to retrieve user list from the database")
 	}
 
-	// Parse the HTML template
 	ts, err := template.ParseFiles("userList.html")
 	if err != nil {
 		log.WithError(err).Error("Error parsing user list template")
 		return errors.New("failed to parse HTML template")
 	}
 
-	// Execute the template with the user list data
 	err = ts.Execute(w, users)
 	if err != nil {
 		log.WithError(err).Error("Error executing HTML template")
@@ -321,7 +315,7 @@ func (userService) ShowUserList(w http.ResponseWriter, r *http.Request, db *sql.
 
 func getUserListDB(db *sql.DB) ([]authUser, error) {
 	// rows, err := db.Query(`SELECT id, email, username, isactivated, isadmin FROM user_table`)
-	rows, err := db.Query(`SELECT id, email, isactivated, isadmin FROM user_table LIMIT 5`)
+	rows, err := db.Query(`SELECT id, email, isactivated, isadmin FROM user_table LIMIT 10000`)
 
 	if err != nil {
 		return nil, fmt.Errorf("error querying database: %s", err)

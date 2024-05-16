@@ -253,71 +253,72 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/profile.js"></script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
-    <script src="js/notification.js"></script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+        <!-- fv dfvfdvvvvvvvvvvvvvvvvvvvvvvv -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+        <script src="js/script.js"></script>
+        <script src="js/profile.js"></script>
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+        <script src="js/notification.js"></script>
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 
-    <script>
-        function redirectToPsswd() {
-            window.location.href = "/changepsswd"; // Redirect to login.html
-        }
-    </script>
+        <script>
+            function redirectToPsswd() {
+                window.location.href = "/changepsswd"; // Redirect to login.html
+            }
+        </script>
 
 
-    <script>
-        function returnBook(bookName) {
-            // Send a POST request to the server to mark the book as returned
-            fetch('/return?book_name=' + encodeURIComponent(bookName), {
-                method: 'POST',
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // If returning was successful, reload the page to reflect the changes
-                        window.location.reload();
-                    } else {
-                        console.error('Failed to return the book');
-                    }
+        <script>
+            function returnBook(bookName) {
+                // Send a POST request to the server to mark the book as returned
+                fetch('/return?book_name=' + encodeURIComponent(bookName), {
+                    method: 'POST',
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-    </script>
+                    .then(response => {
+                        if (response.ok) {
+                            // If returning was successful, reload the page to reflect the changes
+                            window.location.reload();
+                        } else {
+                            console.error('Failed to return the book');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        </script>
 
 
 
-    <script>
-        function openProfilePicModal() {
-            $("#profilePicModal").css("display", "flex");
-        }
-
-        function closeProfilePicModal() {
-            $("#profilePicModal").css("display", "none");
-        }
-
-        function changeProfilePicture() {
-            var input = document.getElementById("profile-pic-input");
-            var profilePic = document.getElementById("profile-picture");
-
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    profilePic.src = e.target.result;
-                };
-
-                reader.readAsDataURL(input.files[0]);
+        <script>
+            function openProfilePicModal() {
+                $("#profilePicModal").css("display", "flex");
             }
 
-            closeProfilePicModal();
-        }
-    </script>
+            function closeProfilePicModal() {
+                $("#profilePicModal").css("display", "none");
+            }
+
+            function changeProfilePicture() {
+                var input = document.getElementById("profile-pic-input");
+                var profilePic = document.getElementById("profile-picture");
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        profilePic.src = e.target.result;
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+
+                closeProfilePicModal();
+            }
+        </script>
 
 </body>
 

@@ -7,6 +7,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibraBook</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .chat-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chat-window-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-window-body {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .chat-window-footer {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
 </head>
 
 <body class="container mt-5">
@@ -32,7 +82,6 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <!-- <th><a href="?sort=id&filter={{.Filter}}">ID</a></th> -->
                 <th><a href="?sort=book_name&filter={{.Filter}}">Book Name</a></th>
                 <th><a href="?sort=book_author&filter={{.Filter}}">Book Author</a></th>
                 <th><a href="?sort=book_genre&filter={{.Filter}}">Book Genre</a></th>
@@ -71,7 +120,7 @@
                     <h6 class="card-title">
                         <p class="text-muted">{{.BookGenre}}</p>
 
-                        <button class="btn btn-primary" onclick="borrowBook({{.ID}})">Borrow</button>                    
+                        <button class="btn btn-primary" onclick="borrowBook({{.ID}})">Borrow</button>
                     </h6>
 
                 </div>
@@ -94,36 +143,61 @@
         {{end}}
     </div>
 
+    <!-- Chat Icon -->
+    <div class="chat-icon" onclick="toggleChatWindow()">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-window-header">
+            <span>Tech Support</span>
+            <button class="close" onclick="toggleChatWindow()">&times;</button>
+        </div>
+        <div class="chat-window-body">
+            <!-- Chat content goes here -->
+        </div>
+        <div class="chat-window-footer">
+            <input type="text" class="form-control" placeholder="Type your message...">
+        </div>
+    </div>
+
     <!-- Include Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <script>
         function goToPage(page) {
             window.location.href = '?page=' + page + '&filter={{.Filter}}';
         }
-    </script>
 
-<script>
-    function borrowBook(bookId) {
-        // Send a POST request to the server to mark the book as borrowed
-        fetch('/borrow?book_id=' + bookId, {
-            method: 'POST',
-        })
-        .then(response => {
-            if (response.ok) {
-                // If borrowing was successful, reload the page to reflect the changes
-                window.location.reload();
+        function borrowBook(bookId) {
+            // Send a POST request to the server to mark the book as borrowed
+            fetch('/borrow?book_id=' + bookId, {
+                method: 'POST',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // If borrowing was successful, reload the page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to borrow the book');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function toggleChatWindow() {
+            const chatWindow = document.getElementById('chatWindow');
+            if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
+                chatWindow.style.display = 'flex';
             } else {
-                console.error('Failed to borrow the book');
+                chatWindow.style.display = 'none';
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-</script>
+        }
+    </script>
 </body>
 
 </html>

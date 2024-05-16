@@ -30,17 +30,15 @@ func goDotEnvVariable(key string) string {
 }
 
 func SendEmailAll(db *sql.DB, numGoroutines int) error {
-	// Measure start time
 	startTime := time.Now()
 
-	// Query emails from the database
+	//меняй лимит
 	rows, err := db.Query("SELECT email FROM user_table LIMIT 1000")
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
-	// Store emails
 	var emails []string
 	for rows.Next() {
 		var email string
@@ -74,7 +72,6 @@ func SendEmailAll(db *sql.DB, numGoroutines int) error {
 
 	wg.Wait()
 
-	// Measure end time and calculate duration
 	duration := time.Since(startTime)
 	fmt.Printf("Emails sent in %v\n", duration)
 
@@ -82,7 +79,6 @@ func SendEmailAll(db *sql.DB, numGoroutines int) error {
 }
 
 func SendConfirmationEmail(email string) error {
-	// Sender data.
 	from := goDotEnvVariable("FROM_MAIL")
 	password := goDotEnvVariable("PASSWORD_MAIL")
 

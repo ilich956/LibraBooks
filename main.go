@@ -187,7 +187,7 @@ func handleSendEmailAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := mail.SendEmailAll(db, 1)
+	err := mail.SendEmailAll(db, 10000)
 	if err != nil {
 		http.Error(w, "Error sending email", http.StatusInternalServerError)
 		return
